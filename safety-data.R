@@ -8,7 +8,7 @@ echarts4r::e_common(font_family = "Poppins")
 
 # Data Prep ---------------------------------------------------------------
 fatal_by_race <- read_csv("data/fatal_collision_data.csv", show_col_types = FALSE) %>% 
-  filter(variable == "Race & Ethnicity" & metric == "1-year average for fatal collisions" & geography=="Region" & year ==2021) %>%
+  filter(variable == "Race & Ethnicity" & metric == "1-year average for fatal collisions" & geography=="Region" & year==2021) %>%
   mutate(fatality_rate = round(fatality_rate,1)) %>%
   dplyr::arrange(fatality_rate) %>%
   dplyr::mutate(race= str_wrap(grouping, 15))
@@ -24,9 +24,10 @@ fa_user <- "path://M256 288A144 144 0 1 0 256 0a144 144 0 1 0 0 288zm-94.7 32C72
 
 # Functions ---------------------------------------------------------------
 # A function to create a pictorial chart from echarts4r
-create_pictogram <- function(df, x, vbl, icon_svg, title, hover, color) {
+create_pictogram <- function(df, x, vbl, icon_svg, title, title_link = NULL, hover, color) {
   
   picto_chart <- df %>% 
+    group_by(year) %>%
     e_charts_(x=x) %>%
     e_color(color) %>%
     e_tooltip() %>%
@@ -37,12 +38,16 @@ create_pictogram <- function(df, x, vbl, icon_svg, title, hover, color) {
                 symbolSize = 30,
                 legend = FALSE, 
                 name = hover) %>%
-    e_title(title) %>%
+    e_title(title, link=title_link) %>%
     e_flip_coords() %>%
     e_legend(show = FALSE) %>%
     e_x_axis(splitLine=list(show = FALSE)) %>% 
     e_y_axis(splitLine=list(show = FALSE),
-             axisPointer = list(show = FALSE))
+             axisPointer = list(show = FALSE)) %>%
+    e_toolbox_feature("dataZoom") %>%
+    e_toolbox_feature(feature="reset") %>%
+    e_toolbox_feature("dataView") %>%
+    e_toolbox_feature("saveAsImage")
   
   return(picto_chart)
   
@@ -53,7 +58,8 @@ my_chart <- create_pictogram(df=fatal_by_race,
                              x="race",
                              vbl="fatality_rate",
                              icon_svg=fa_user,
-                             title="Fatal Collision Rate by Race and Hispanic/Latinx Origin (2021)",
+                             title="Fatal Collision Rate by Race (2021)",
+                             title_link="https://www.psrc.org/",
                              hover="Fatal Collisions per 100,000 people",
                              color= psrc_colors$pgnobgy_5[[1]])
 
