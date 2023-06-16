@@ -9,7 +9,7 @@ echarts4r::e_common(font_family = "Poppins")
 # Data Prep ---------------------------------------------------------------
 fatal_by_race <- read_csv("data/fatal_collision_data.csv", show_col_types = FALSE) %>% 
   filter(variable == "Race & Ethnicity" & metric == "1-year average for fatal collisions" & geography=="Region" & year==2021) %>%
-  mutate(fatality_rate = round(fatality_rate,1)) %>%
+  mutate(fatality_rate = round(fatality_rate,1), metric="Fatal Collisions per 100,000 people") %>%
   dplyr::arrange(fatality_rate) %>%
   dplyr::mutate(race= str_wrap(grouping, 15))
 
@@ -24,13 +24,18 @@ fa_user <- "path://M256 288A144 144 0 1 0 256 0a144 144 0 1 0 0 288zm-94.7 32C72
 
 # Functions ---------------------------------------------------------------
 # A function to create a pictorial chart from echarts4r
-create_pictogram <- function(df, x, vbl, icon_svg, title, title_link = NULL, hover, color) {
+create_pictogram <- function(df, x, vbl, icon_svg, title, title_link = NULL, hover, color, m=NULL) {
   
   picto_chart <- df %>% 
-    group_by(year) %>%
-    e_charts_(x=x) %>%
+    e_charts_(x=x, bind="metric") %>%
     e_color(color) %>%
-    e_tooltip() %>%
+    e_tooltip(htmlwidgets::JS("
+      function(params){
+        return('<strong>' + params.name + 
+                '</strong><br />wt: ' + params.value[0] + 
+                '<br />mpg: ' + params.value[1]) 
+                }
+    ")) %>%
     e_grid(left = '20%') %>%
     e_pictorial_(serie = vbl, 
                 symbol = icon_svg,
@@ -47,7 +52,8 @@ create_pictogram <- function(df, x, vbl, icon_svg, title, title_link = NULL, hov
     e_toolbox_feature("dataZoom") %>%
     e_toolbox_feature(feature="reset") %>%
     e_toolbox_feature("dataView") %>%
-    e_toolbox_feature("saveAsImage")
+    e_toolbox_feature("saveAsImage") %>%
+    
   
   return(picto_chart)
   
@@ -61,6 +67,7 @@ my_chart <- create_pictogram(df=fatal_by_race,
                              title="Fatal Collision Rate by Race (2021)",
                              title_link="https://www.psrc.org/",
                              hover="Fatal Collisions per 100,000 people",
+                             m="Fatal Collisions per 100,000 people",
                              color= psrc_colors$pgnobgy_5[[1]])
 
 my_chart_house <- create_pictogram(df=fatal_by_race,
