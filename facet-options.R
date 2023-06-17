@@ -19,14 +19,15 @@ interactive_facet_column_chart <- function(t, x, y, facet, ncol=3, est=NULL,
     e_facet(rows=nrow, 
             cols=ncol, 
             legend_pos = "bottom", 
-            legend_space = 12,
-            margin_trbl = c(t = 2, r = 2, b = 5, l = 2)) |>
+            legend_space = 5,
+            margin_trbl = c(t = 8, r = 2, b = 5, l = 2)) |>
     #e_labels(fontSize = 9,) |>
     e_legend(show = TRUE, bottom=0) |>
     e_title(title, subtitle,
-            textAlign = list('left'),
-            padding = list(c(5, 10, 5, 10))) |>
-    #e_theme_custom("psrc_theme.json") |>
+            textAlign = list('left')#,
+            #padding = list(c(5, 10, 5, 10))
+            ) |>
+    #e_theme_custom("C:/Users/mjensen/projects/psrcplot/psrc_theme.json") |>
     e_tooltip() |>
     e_toolbox_feature("dataView") |>
     e_toolbox_feature("saveAsImage") |>
