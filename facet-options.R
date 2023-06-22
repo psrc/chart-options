@@ -40,14 +40,18 @@ df <- psrcplot::mode_share_example_data %>%
                                     "Hispanic or Latino","Native Hawaiian and Other Pacific Islander","White",
                                     "Some Other Race","Two or More Races")))
 
+df <- psrcplot::mode_share_example_data %>%
+  filter(Category=="Population by Race") %>%
+  filter(Race !="Total") %>% 
+  mutate(Geography=factor(Geography, levels=c("Region","King","Kitsap","Pierce","Snohomish")),
+         Race=factor(Race, levels=c("American Indian or Alaskan Native Alone","Asian","Black or African American",
+                                    "Hispanic or Latino","Native Hawaiian and Other Pacific Islander","White",
+                                    "Some Other Race","Two or More Races")))
+
 interactive_facet_column_chart(df, 
-                               x = "Year", 
+                               x = "Geography", 
                                y = "share", 
                                ncol = 4, 
                                facet = "Race", 
                                title = "Population by Race 2020", 
-                               subtitle = "For counties in the Central Puget Sound Region") |> 
-  
-  swap_column_chart(x="Race", y="share", facet="Geography", est="percent", dec=1,
-                    title="Population by Race 2020", 
-                    subtitle="For counties in the Central Puget Sound Region")
+                               subtitle = "For counties in the Central Puget Sound Region")
